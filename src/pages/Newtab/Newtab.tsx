@@ -1,5 +1,4 @@
 import React from 'react'
-import logo from '../../assets/img/logo.svg'
 import './Newtab.css'
 import './Newtab.scss'
 
@@ -7,7 +6,8 @@ const Newtab: React.FC = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <img src="/assets/img/logo.svg" className="App-logo" alt="logo" />
+        <p>Hello, {process.env.NODE_ENV}!</p>
         <p>
           Edit <code>src/pages/Newtab/Newtab.js</code> and save to reload.
         </p>

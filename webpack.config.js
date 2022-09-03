@@ -1,20 +1,18 @@
-var webpack = require('webpack'),
-  path = require('path'),
-  fileSystem = require('fs-extra'),
-  env = require('./utils/env'),
-  CopyWebpackPlugin = require('copy-webpack-plugin'),
-  HtmlWebpackPlugin = require('html-webpack-plugin'),
-  TerserPlugin = require('terser-webpack-plugin');
-var { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const webpack = require('webpack')
+const path = require('path')
+const fileSystem = require('fs-extra')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const env = require('./scripts/env')
 
-const ASSET_PATH = process.env.ASSET_PATH || '/';
-
-var alias = {};
+const ASSET_PATH = process.env.ASSET_PATH || '/'
 
 // load the secrets
-var secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js');
+const secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js')
 
-var fileExtensions = [
+const fileExtensions = [
   'jpg',
   'jpeg',
   'png',
@@ -25,14 +23,22 @@ var fileExtensions = [
   'ttf',
   'woff',
   'woff2',
-];
+]
 
-if (fileSystem.existsSync(secretsPath)) {
-  alias['secrets'] = secretsPath;
+const alias = {
+  '@': path.join(__dirname, 'src'),
 }
 
-var options = {
+if (fileSystem.existsSync(secretsPath)) {
+  alias['secrets'] = secretsPath
+}
+
+const config = {
   mode: process.env.NODE_ENV || 'development',
+  resolve: {
+    alias: alias,
+    extensions: fileExtensions.map((extension) => '.' + extension).concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
+  },
   entry: {
     newtab: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.jsx'),
     options: path.join(__dirname, 'src', 'pages', 'Options', 'index.jsx'),
@@ -97,12 +103,6 @@ var options = {
       },
     ],
   },
-  resolve: {
-    alias: alias,
-    extensions: fileExtensions
-      .map((extension) => '.' + extension)
-      .concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
-  },
   plugins: [
     new CleanWebpackPlugin({ verbose: false }),
     new webpack.ProgressPlugin(),
@@ -118,11 +118,10 @@ var options = {
             // generates the manifest file using the package.json informations
             return Buffer.from(
               JSON.stringify({
-                description: process.env.npm_package_description,
                 version: process.env.npm_package_version,
                 ...JSON.parse(content.toString()),
               })
-            );
+            )
           },
         },
       ],
@@ -139,17 +138,8 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/assets/img/icon-128.png',
-          to: path.join(__dirname, 'build'),
-          force: true,
-        },
-      ],
-    }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: 'src/assets/img/icon-34.png',
-          to: path.join(__dirname, 'build'),
+          from: path.join(__dirname, 'assets'),
+          to: path.join(__dirname, 'build', 'assets'),
           force: true,
         },
       ],
@@ -188,19 +178,19 @@ var options = {
   infrastructureLogging: {
     level: 'info',
   },
-};
+}
 
 if (env.NODE_ENV === 'development') {
-  options.devtool = 'cheap-module-source-map';
+  config.devtool = 'cheap-module-source-map'
 } else {
-  options.optimization = {
+  config.optimization = {
     minimize: true,
     minimizer: [
       new TerserPlugin({
         extractComments: false,
       }),
     ],
-  };
+  }
 }
 
-module.exports = options;
+module.exports = config
