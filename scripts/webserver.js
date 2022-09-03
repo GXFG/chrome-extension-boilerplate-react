@@ -1,29 +1,26 @@
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = 'development'
 process.env.NODE_ENV = 'development'
-process.env.ASSET_PATH = '/'
 
 const WebpackDevServer = require('webpack-dev-server')
 const webpack = require('webpack')
-const config = require('../webpack.config')
-const env = require('./env')
 const path = require('path')
+const env = require('./env')
+const config = require('../webpack.config')
 
-const options = config.chromeExtensionBoilerplate || {}
-const excludeEntriesToHotReload = options.notHotReload || []
+const excludeEntriesToHotReload = ['background', 'contentScript', 'devtools']
 
-for (const entryName in config.entry) {
-  if (excludeEntriesToHotReload.indexOf(entryName) === -1) {
+for (const entryName of Object.keys(config.entry)) {
+  if (!excludeEntriesToHotReload.includes(entryName)) {
     config.entry[entryName] = [
       'webpack/hot/dev-server',
       `webpack-dev-server/client?hot=true&hostname=localhost&port=${env.PORT}`,
-    ].concat(config.entry[entryName])
+      config.entry[entryName],
+    ]
   }
 }
 
-config.plugins = [new webpack.HotModuleReplacementPlugin()].concat(config.plugins || [])
-
-delete config.chromeExtensionBoilerplate
+config.plugins = [new webpack.HotModuleReplacementPlugin(), ...config.plugins]
 
 const compiler = webpack(config)
 

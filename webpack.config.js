@@ -7,8 +7,6 @@ const TerserPlugin = require('terser-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const env = require('./scripts/env')
 
-const ASSET_PATH = process.env.ASSET_PATH || '/'
-
 // load the secrets
 const secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js')
 
@@ -37,7 +35,7 @@ const config = {
   mode: process.env.NODE_ENV || 'development',
   resolve: {
     alias: alias,
-    extensions: fileExtensions.map((extension) => '.' + extension).concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
+    extensions: [...fileExtensions.map((extension) => '.' + extension), '.js', '.jsx', '.ts', '.tsx', '.css'],
   },
   entry: {
     newtab: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.jsx'),
@@ -48,21 +46,16 @@ const config = {
     devtools: path.join(__dirname, 'src', 'pages', 'Devtools', 'index.js'),
     panel: path.join(__dirname, 'src', 'pages', 'Panel', 'index.jsx'),
   },
-  chromeExtensionBoilerplate: {
-    notHotReload: ['background', 'contentScript', 'devtools'],
-  },
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'build'),
     clean: true,
-    publicPath: ASSET_PATH,
+    publicPath: '/',
   },
   module: {
     rules: [
       {
-        // look for .css or .scss files
         test: /\.(css|scss)$/,
-        // in the `src` directory
         use: [
           {
             loader: 'style-loader',
@@ -88,7 +81,11 @@ const config = {
         loader: 'html-loader',
         exclude: /node_modules/,
       },
-      { test: /\.(ts|tsx)$/, loader: 'ts-loader', exclude: /node_modules/ },
+      {
+        test: /\.(ts|tsx)$/,
+        loader: 'ts-loader',
+        exclude: /node_modules/
+      },
       {
         test: /\.(js|jsx)$/,
         use: [

@@ -7,6 +7,7 @@ const Popup: React.FC = () => {
     <div className="App">
       <header className="App-header">
         <Greetings />
+        <p>Hello, {process.env.NODE_ENV}!</p>
         <p>
           Edit <code>src/pages/Popup/Popup.tsx</code> and save to reload.
         </p>
